@@ -4,7 +4,7 @@ import './App.css'
 const Slider = (props) => {
   return(
     <>
-      <imput type="range" min="0"></imput>
+      <input type="range" min="0"></input>
     </>
   )
 }
@@ -14,9 +14,8 @@ function App() {
 
   return (
     <>
-    <div>test1</div>
-    <div><Test/></div>
-    <Slider></Slider>
+    <div>test</div>
+    <div><Slider></Slider></div>
     </>
   )
 }
