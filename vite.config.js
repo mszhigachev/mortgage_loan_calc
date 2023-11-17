@@ -5,7 +5,7 @@ export default defineConfig({
 
   plugins: [solid()],
   server: {
-    base: "/mortgage_loan_cal/",
+    base: "/mortgage_loan_calc/",
     // usePolling: true,
     watch: {
       usePolling: true,

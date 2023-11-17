@@ -24,5 +24,5 @@ The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
 ## Deployment
-Now deployed [here]()
+Now deployed [here](https://mszhigachev.github.io/mortgage_loan_calc/)
 Learn more about deploying your application with the [documentations](https://vitejs.dev/guide/static-deploy.html)
