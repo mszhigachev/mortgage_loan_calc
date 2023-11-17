@@ -1,8 +1,12 @@
 import { createSignal } from 'solid-js'
 import './App.css'
 
-const Test = () => {
-  return <div>x</div>
+const Slider = (props) => {
+  return(
+    <>
+      <imput type="range" min="0"></imput>
+    </>
+  )
 }
 
 function App() {
@@ -10,8 +14,9 @@ function App() {
 
   return (
     <>
-    <div>test</div>
+    <div>test1</div>
     <div><Test/></div>
+    <Slider></Slider>
     </>
   )
 }
