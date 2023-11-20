@@ -1,7 +1,74 @@
 .formsBlock {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: flex-start;
-  }
+
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  align-content: flex-start;
+  background: #e8e8e8;
+  padding: 10pt;
+  border-radius: 20px;
+  margin-bottom: 20pt;
+  flex-direction: column;
+  width: 131pt;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 20px;
+  border: 5px solid #fff;
+  border-top: 5px solid #fff;
+  border-bottom: 3px solid #fff;
+  border-collapse: collapse;
+  outline: 3px solid #ffd300;
+  font-size: 15px;
+  background: #fff !important;
+}
+
+.table th {
+  font-weight: bold;
+  padding: 7px;
+  background: #ffd300;
+  border: none;
+  /* text-align: left; */
+  font-size: 15px;
+  border-top: 3px solid #fff;
+  border-bottom: 3px solid #ffd300;
+}
+
+.table td {
+  padding: 7px;
+  border: none;
+  border-top: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  font-size: 15px;
+}
+
+.table tbody tr:nth-child(even) {
+  background: #f8f8f8 !important;
+}
+
+.table tbody tr:hover {
+  transform: scale(1.008);
+  transition: 0.2s;
+  -webkit-box-shadow: 0px 0px 22px -7px rgba(34, 60, 80, 0.17) inset;
+  -moz-box-shadow: 0px 0px 22px -7px rgba(34, 60, 80, 0.17) inset;
+  box-shadow: 0px 0px 22px -7px rgba(34, 60, 80, 0.17) inset;
+
+}
+
+
+.info {
+  display: flex;
+  background: #ebeae2;
+  width: 404pt;
+  height: 50pt;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10pt;
+  border-radius: 20px;
+  margin-bottom: 20pt;
+}
