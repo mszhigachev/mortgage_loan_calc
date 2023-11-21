@@ -133,7 +133,7 @@ function App() {
           <div>
             <input className={styles.range} type="range" step="1" min={0} max={houseCost()} value={initialPayment()} onInput={(e) => handleInitialPayment(e.target.value)} disabled={selectedCalc() === 'initial_payment'} ></input>
           </div>
-          <div>
+          <div onClick={() => setSelectedCalc('initial_payment')}>
             <input name="calc" type="radio" onChange={() => setSelectedCalc('initial_payment')}></input>
             <label>Calc</label>
           </div>
@@ -146,7 +146,7 @@ function App() {
           <div>
             <input className={styles.range} type="range" step="1" min={initialPayment()} max={100000000} value={houseCost()} onInput={(e) => handleHouseCost(e.target.value)} disabled={selectedCalc() === 'house_cost'}></input>
           </div>
-          <div>
+          <div onClick={() => setSelectedCalc('house_cost')}>
             <input name="calc" type="radio" onChange={() => setSelectedCalc('house_cost')}></input>
             <label>Calc</label>
           </div>
@@ -183,7 +183,7 @@ function App() {
           <div>
             <input className={styles.range} type="range" step={10} min={1} max={1000000} value={monthPayment()} onInput={(e) => handleMonthPayment(e.target.value)} disabled={selectedCalc() === 'month_payment'}></input>
           </div>
-          <div>
+          <div onClick={() => setSelectedCalc('month_payment')}>
             <input name="calc" type="radio" onChange={() => setSelectedCalc('month_payment')} checked={selectedCalc() === 'month_payment'}></input>
             <label>Calc</label>
           </div>
@@ -198,7 +198,7 @@ function App() {
         <div style={{ "text-align": "center" }}>
           Payment schedule
         </div>
-        <div>
+        <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <tbody>
               <tr>
@@ -222,7 +222,7 @@ function App() {
                 paymentTable().map(
                   (r, i) =>
                     <tr>
-                      <td>{r.month} (year {(Math.round(i / 12) < 1) ? 1 : Math.round(i / 12)})</td>
+                      <td>{r.month} <br/> (year {(Math.round(i / 12) < 1) ? 1 : Math.round(i / 12)})</td>
                       <td>{currencyFormatedValue(monthPayment())}</td>
                       <td>{currencyFormatedValue(r.g_c)}</td>
                       <td>{currencyFormatedValue(r.percent)}</td>

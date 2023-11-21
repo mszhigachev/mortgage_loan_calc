@@ -12,8 +12,14 @@
   max-width: 17vh;
 }
 
+.tableWrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .table {
-  width: 100%;
+  width: 85%;
   margin-bottom: 20px;
   border: 5px solid #fff;
   border-top: 5px solid #fff;
@@ -31,6 +37,7 @@
 .inputText{
   width: 99%;
 }
+
 .table th {
   font-weight: bold;
   padding: 7px;
@@ -87,7 +94,10 @@
   .info{
     max-width: 100%;
   }
-  .table td{
+  /* .table td{
     font-size: 10px;
+  } */
+  .table{
+    width: 100%;
   }
 }
