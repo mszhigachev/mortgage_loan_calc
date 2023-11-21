@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js'
-import { createStore } from 'solid-js/store'
-import './App.css'
+// import { createStore } from 'solid-js/store'
+// import './App.css'
 import styles from './app.module.css'
 
 function App() {
@@ -128,32 +128,38 @@ function App() {
         <div className={styles.form}>
           <div className={styles.formName}>Initial payment</div>
           <div>
-            <input type="text" value={currencyFormatedValue(initialPayment())} onInput={(e) => { handleInitialPayment(e.target.value) }} disabled={selectedCalc() === 'initial_payment'}></input>
+            <input className={styles.inputText} type="text" value={currencyFormatedValue(initialPayment())} onInput={(e) => { handleInitialPayment(e.target.value) }} disabled={selectedCalc() === 'initial_payment'}></input>
           </div>
           <div>
-            <input type="range" step="1" min={0} max={houseCost()} value={initialPayment()} onInput={(e) => handleInitialPayment(e.target.value)} disabled={selectedCalc() === 'initial_payment'} ></input>
+            <input className={styles.range} type="range" step="1" min={0} max={houseCost()} value={initialPayment()} onInput={(e) => handleInitialPayment(e.target.value)} disabled={selectedCalc() === 'initial_payment'} ></input>
           </div>
-          <input name="calc" type="radio" onChange={() => setSelectedCalc('initial_payment')}></input>
-          <label>Calc</label>
+          <div>
+            <input name="calc" type="radio" onChange={() => setSelectedCalc('initial_payment')}></input>
+            <label>Calc</label>
+          </div>
         </div>
         <div className={styles.form}>
           <div className={styles.formName}>House cost</div>
           <div>
-            <input type="text" value={currencyFormatedValue(houseCost())} onInput={(e) => { handleHouseCost(e.target.value) }} disabled={selectedCalc() === 'house_cost'}></input>
+            <input className={styles.inputText} type="text" value={currencyFormatedValue(houseCost())} onInput={(e) => { handleHouseCost(e.target.value) }} disabled={selectedCalc() === 'house_cost'}></input>
           </div>
           <div>
-            <input type="range" step="1" min={initialPayment()} max={100000000} value={houseCost()} onInput={(e) => handleHouseCost(e.target.value)} disabled={selectedCalc() === 'house_cost'}></input>
+            <input className={styles.range} type="range" step="1" min={initialPayment()} max={100000000} value={houseCost()} onInput={(e) => handleHouseCost(e.target.value)} disabled={selectedCalc() === 'house_cost'}></input>
           </div>
-          <input name="calc" type="radio" onChange={() => setSelectedCalc('house_cost')}></input>
-          <label>Calc</label>
+          <div>
+            <input name="calc" type="radio" onChange={() => setSelectedCalc('house_cost')}></input>
+            <label>Calc</label>
+          </div>
         </div>
         <div className={styles.form}>
           <div className={styles.formName}>Credit rate</div>
           <div>
-            <input type="text" value={rate()} onInput={(e) => { handleCreditRate(e.target.value) }} disabled={selectedCalc() === 'rate'}></input>
+            <input className={styles.inputText} type="text" value={rate()} onInput={(e) => { handleCreditRate(e.target.value) }} disabled={selectedCalc() === 'rate'}></input>
           </div>
           <div>
-            <input type="range" step={0.1} min={1} max={30} value={rate()} onInput={(e) => handleCreditRate(e.target.value)} disabled={selectedCalc() === 'rate'}></input>
+            <div>
+              <input className={styles.range} type="range" step={0.1} min={1} max={30} value={rate()} onInput={(e) => handleCreditRate(e.target.value)} disabled={selectedCalc() === 'rate'}></input>
+            </div>
           </div>
           {/* <input name="calc" type="radio" onChange={() => setSelectedCalc('rate')}></input>
           <label>Calc</label> */}
@@ -161,10 +167,10 @@ function App() {
         <div className={styles.form}>
           <div className={styles.formName}>Credit term</div>
           <div>
-            <input type="text" value={creditTerm()} onInput={(e) => { handleCreditTerm(e.target.value) }} disabled={selectedCalc() === 'credit_term'}></input>
+            <input className={styles.inputText} type="text" value={creditTerm()} onInput={(e) => { handleCreditTerm(e.target.value) }} disabled={selectedCalc() === 'credit_term'}></input>
           </div>
           <div>
-            <input type="range" step={1} min={1} max={35} value={creditTerm()} onInput={(e) => handleCreditTerm(e.target.value)} disabled={selectedCalc() === 'credit_term'}></input>
+            <input className={styles.range} type="range" step={1} min={1} max={35} value={creditTerm()} onInput={(e) => handleCreditTerm(e.target.value)} disabled={selectedCalc() === 'credit_term'}></input>
           </div>
           {/* <input name="calc" type="radio" onChange={(e) => setSelectedCalc('credit_term')}></input>
           <label>Calc</label> */}
@@ -172,13 +178,15 @@ function App() {
         <div className={styles.form}>
           <div className={styles.formName}>Month payment</div>
           <div>
-            <input type="text" value={currencyFormatedValue(monthPayment())} onInput={(e) => { handleMonthPayment(e.target.value) }} disabled={selectedCalc() === 'month_payment'}></input>
+            <input className={styles.inputText} type="text" value={currencyFormatedValue(monthPayment())} onInput={(e) => { handleMonthPayment(e.target.value) }} disabled={selectedCalc() === 'month_payment'}></input>
           </div>
           <div>
-            <input type="range" step={10} min={1} max={1000000} value={monthPayment()} onInput={(e) => handleMonthPayment(e.target.value)} disabled={selectedCalc() === 'month_payment'}></input>
+            <input className={styles.range} type="range" step={10} min={1} max={1000000} value={monthPayment()} onInput={(e) => handleMonthPayment(e.target.value)} disabled={selectedCalc() === 'month_payment'}></input>
           </div>
-          <input name="calc" type="radio" onChange={() => setSelectedCalc('month_payment')} checked={selectedCalc() === 'month_payment'}></input>
-          <label>Calc</label>
+          <div>
+            <input name="calc" type="radio" onChange={() => setSelectedCalc('month_payment')} checked={selectedCalc() === 'month_payment'}></input>
+            <label>Calc</label>
+          </div>
         </div>
       </div>
       <div className={styles.info}>
@@ -187,7 +195,7 @@ function App() {
         <label>overpayment <strong>{currencyFormatedValue(totalPercent())}</strong></label>
       </div>
       <div className={styles.paymentSchedule}>
-        <div>
+        <div style={{ "text-align": "center" }}>
           Payment schedule
         </div>
         <div>
@@ -212,9 +220,9 @@ function App() {
               </tr>
               {
                 paymentTable().map(
-                  (r) =>
+                  (r, i) =>
                     <tr>
-                      <td>{r.month}</td>
+                      <td>{r.month} (year {(Math.round(i / 12) < 1) ? 1 : Math.round(i / 12)})</td>
                       <td>{currencyFormatedValue(monthPayment())}</td>
                       <td>{currencyFormatedValue(r.g_c)}</td>
                       <td>{currencyFormatedValue(r.percent)}</td>
