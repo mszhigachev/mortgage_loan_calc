@@ -1,239 +1,188 @@
-import { createSignal } from 'solid-js'
-// import { createStore } from 'solid-js/store'
-// import './App.css'
+import { createMemo, createSignal } from 'solid-js'
+import { createStore } from 'solid-js/store'
 import styles from './app.module.css'
+import Form from './components/form/Form'
+import Info from './components/info/Info'
+import PaymentSchedule from './components/paymentSchedule/paymentSchedule'
 
 function App() {
 
+  const [store, setStore] = createStore(
+    {
+      selectedCalc:
+        "Month payment",
+      forms: {
+        initialPayment: {
+          value: 200000,
+          name: "Initial payment",
+
+        },
+        houseCost: {
+          value: 1000000,
+          name: "House cost",
+
+        },
+        creditTerm: {
+          value: 20,
+          name: "Credit term",
+
+        },
+        rate: {
+          value: 5.5,
+          name: "Credit rate",
+
+        },
+        monthPayment: {
+          value: 5503.1,
+          name: "Month payment",
+
+        }
+      },
+      get monthRate() {
+        return this.forms.rate.value / 12 / 100
+      },
+      get totalRate() {
+        return (1 + this.monthRate) ** (this.forms.creditTerm.value * 12)
+      },
+      get totalCredit() {
+        return this.forms.houseCost.value - this.forms.initialPayment.value
+      }
+    }
+  )
+
   const calcMothPayment = () => {
-    const credit = houseCost() - initialPayment()
-    const r = rate() / 12 / 100
-    const g_r = (1 + r) ** (creditTerm() * 12)
-    return Math.round(credit * r * g_r / (g_r - 1) * 100) / 100
+    return Math.round(store.totalCredit * store.monthRate * store.totalRate / (store.totalRate - 1) * 100) / 100
   }
 
   const calcHouseCost = () => {
-    const r = rate() / 12 / 100
-    const g_r = (1 + r) ** (creditTerm() * 12)
-    const c = Math.round(
-      initialPayment() + monthPayment() * (g_r - 1) / (r * g_r)
-    )
-    return c
+    return Math.round(store.forms.initialPayment.value + store.forms.monthPayment.value * (store.totalRate) / (store.monthRate * store.totalRate))
   }
 
   const calcInitialPayment = () => {
-    const r = rate() / 12 / 100
-    const g_r = (1 + r) ** (creditTerm() * 12)
-    const i = houseCost() - (monthPayment() * (g_r - 1)) / (r * g_r)
-    return (i < 0) ? 0 : i
+    const initialPayment = store.forms.houseCost.value - (store.forms.monthPayment.value * (store.totalRate - 1) / (store.monthRate * store.totalRate))
+    return (initialPayment < 0) ? 0 : initialPayment
   }
 
-  const calcPaymentTable = () => {
-    const credit = houseCost() - initialPayment()
-    const r = rate() / 12 / 100
-    const g_r = (1 + r) ** (creditTerm() * 12)
-    var left = credit
-    var totalCredit = 0
-    var totalPercent = 0
-    var table = []
-    for (let i = 1; i < creditTerm() * 12 + 1; i++) {
-      const percent = left * r
-      totalPercent += percent
-      const g_c = monthPayment() - percent
-      totalCredit += g_c
-      left -= g_c
-      table.push(
-        {
-          month: i,
-          percent: percent,
-          g_c: g_c,
-          left: left
-        }
-      )
+  function calc() {
+    switch (store.selectedCalc) {
+      case store.forms.monthPayment.name:
+        setStore('forms', 'monthPayment', 'value', calcMothPayment())
+        break;
+      case store.forms.initialPayment.name:
+        setStore('forms', 'initialPayment', 'value', calcInitialPayment())
+        break;
+      case store.forms.houseCost.name:
+        setStore('forms', 'houseCost', 'value', calcHouseCost())
     }
-
-    setTotalPaid(credit + totalPercent)
-    setTotalPercent(totalPercent)
-    return table
   }
 
-  const [initialPayment, setInitialPayment] = createSignal(200000)
-  const [houseCost, setHouseCost] = createSignal(1000000)
-  const [creditTerm, setCreditTerm] = createSignal(20)
-  const [rate, setRate] = createSignal(5.5)
-  const [monthPayment, setMonthPayment] = createSignal(calcMothPayment())
-  const [totalPaid, setTotalPaid] = createSignal(0)
-  const [totalPercent, setTotalPercent] = createSignal(0)
-  const [selectedCalc, setSelectedCalc] = createSignal('month_payment')
-  const [paymentTable, setPaymentTable] = createSignal(calcPaymentTable())
-
-
-  function formValueToFloat(v) {
-    const sanitizedValue = v.replace(/[^\d.]/g, "")
+  const toFloat = (v) => {
+    const sanitizedValue = v.replace(/[^\d.,]/g, "")
     const floatValue = parseFloat(sanitizedValue)
     return isNaN(floatValue) ? 0 : floatValue
   }
 
-  function calc() {
-    switch (selectedCalc()) {
-      case 'month_payment':
-        setMonthPayment(calcMothPayment())
-        break;
-      case 'initial_payment':
-        setInitialPayment(calcInitialPayment())
-        break;
-      case 'house_cost':
-        setHouseCost(calcHouseCost())
-    }
 
-    setPaymentTable(calcPaymentTable())
-
-  }
-
-  const currencyFormatedValue = (v) => {
-    return v.toLocaleString("ru-RU", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    })
-  }
   const handleInitialPayment = (v) => {
-    setInitialPayment(formValueToFloat(v))
+    setStore('forms', 'initialPayment', 'value', toFloat(v))
     calc()
   }
 
   const handleHouseCost = (v) => {
-    setHouseCost(formValueToFloat(v))
+    setStore('forms', 'houseCost', 'value', toFloat(v))
     calc()
   }
 
   const handleMonthPayment = (v) => {
-    setMonthPayment(formValueToFloat(v))
+    setStore('forms', 'monthPayment', 'value', toFloat(v))
     calc()
   }
 
   const handleCreditRate = (v) => {
-    setRate(formValueToFloat(v))
+    setStore('forms', 'rate', 'value', toFloat(v))
     calc()
   }
 
   const handleCreditTerm = (v) => {
-    setCreditTerm(formValueToFloat(v))
+    setStore('forms', 'creditTerm', 'value', toFloat(v))
     calc()
+  }
+
+  const handleSelectedCalc = (v) => {
+    setStore('selectedCalc', v)
   }
 
   return (
     <>
       <div>test</div>
       <div className={styles.formsBlock}>
-        <div className={styles.form}>
-          <div className={styles.formName}>Initial payment</div>
-          <div>
-            <input className={styles.inputText} type="text" value={currencyFormatedValue(initialPayment())} onInput={(e) => { handleInitialPayment(e.target.value) }} disabled={selectedCalc() === 'initial_payment'}></input>
-          </div>
-          <div>
-            <input className={styles.range} type="range" step="1" min={0} max={houseCost()} value={initialPayment()} onInput={(e) => handleInitialPayment(e.target.value)} disabled={selectedCalc() === 'initial_payment'} ></input>
-          </div>
-          <div onClick={() => setSelectedCalc('initial_payment')}>
-            <input name="calc" type="radio" onChange={() => setSelectedCalc('initial_payment')}></input>
-            <label>Calc</label>
-          </div>
-        </div>
-        <div className={styles.form}>
-          <div className={styles.formName}>House cost</div>
-          <div>
-            <input className={styles.inputText} type="text" value={currencyFormatedValue(houseCost())} onInput={(e) => { handleHouseCost(e.target.value) }} disabled={selectedCalc() === 'house_cost'}></input>
-          </div>
-          <div>
-            <input className={styles.range} type="range" step="1" min={initialPayment()} max={100000000} value={houseCost()} onInput={(e) => handleHouseCost(e.target.value)} disabled={selectedCalc() === 'house_cost'}></input>
-          </div>
-          <div onClick={() => setSelectedCalc('house_cost')}>
-            <input name="calc" type="radio" onChange={() => setSelectedCalc('house_cost')}></input>
-            <label>Calc</label>
-          </div>
-        </div>
-        <div className={styles.form}>
-          <div className={styles.formName}>Credit rate</div>
-          <div>
-            <input className={styles.inputText} type="text" value={rate()} onInput={(e) => { handleCreditRate(e.target.value) }} disabled={selectedCalc() === 'rate'}></input>
-          </div>
-          <div>
-            <div>
-              <input className={styles.range} type="range" step={0.1} min={1} max={30} value={rate()} onInput={(e) => handleCreditRate(e.target.value)} disabled={selectedCalc() === 'rate'}></input>
-            </div>
-          </div>
-          {/* <input name="calc" type="radio" onChange={() => setSelectedCalc('rate')}></input>
-          <label>Calc</label> */}
-        </div>
-        <div className={styles.form}>
-          <div className={styles.formName}>Credit term</div>
-          <div>
-            <input className={styles.inputText} type="text" value={creditTerm()} onInput={(e) => { handleCreditTerm(e.target.value) }} disabled={selectedCalc() === 'credit_term'}></input>
-          </div>
-          <div>
-            <input className={styles.range} type="range" step={1} min={1} max={35} value={creditTerm()} onInput={(e) => handleCreditTerm(e.target.value)} disabled={selectedCalc() === 'credit_term'}></input>
-          </div>
-          {/* <input name="calc" type="radio" onChange={(e) => setSelectedCalc('credit_term')}></input>
-          <label>Calc</label> */}
-        </div>
-        <div className={styles.form}>
-          <div className={styles.formName}>Month payment</div>
-          <div>
-            <input className={styles.inputText} type="text" value={currencyFormatedValue(monthPayment())} onInput={(e) => { handleMonthPayment(e.target.value) }} disabled={selectedCalc() === 'month_payment'}></input>
-          </div>
-          <div>
-            <input className={styles.range} type="range" step={10} min={1} max={1000000} value={monthPayment()} onInput={(e) => handleMonthPayment(e.target.value)} disabled={selectedCalc() === 'month_payment'}></input>
-          </div>
-          <div onClick={() => setSelectedCalc('month_payment')}>
-            <input name="calc" type="radio" onChange={() => setSelectedCalc('month_payment')} checked={selectedCalc() === 'month_payment'}></input>
-            <label>Calc</label>
-          </div>
-        </div>
+        <Form
+          name={store.forms.initialPayment.name}
+          isSelectedCalc={store.selectedCalc === store.forms.initialPayment.name}
+          calculatable={true}
+          handleChange={handleInitialPayment}
+          value={store.forms.initialPayment.value}
+          step={1}
+          minVal={0}
+          maxVal={store.forms.houseCost.value}
+          handleSelectedCalc={handleSelectedCalc}
+        />
+        <Form
+          name={store.forms.houseCost.name}
+          isSelectedCalc={store.selectedCalc === store.forms.houseCost.name}
+          calculatable={true}
+          handleChange={handleHouseCost}
+          value={store.forms.houseCost.value}
+          step={1}
+          minVal={store.forms.initialPayment.value}
+          maxVal={100000000}
+          handleSelectedCalc={handleSelectedCalc}
+        />
+        <Form
+          name={store.forms.rate.name}
+          isSelectedCalc={store.selectedCalc === store.forms.rate.name}
+          calculatable={false}
+          handleChange={handleCreditRate}
+          value={store.forms.rate.value}
+          step={0.1}
+          minVal={0.1}
+          maxVal={30}
+          handleSelectedCalc={handleSelectedCalc}
+        />
+        <Form
+          name={store.forms.creditTerm.name}
+          isSelectedCalc={store.selectedCalc === store.forms.creditTerm.name}
+          calculatable={false}
+          handleChange={handleCreditTerm}
+          value={store.forms.creditTerm.value}
+          step={1}
+          minVal={1}
+          maxVal={35}
+          handleSelectedCalc={handleSelectedCalc}
+        />
+        <Form
+          name={store.forms.monthPayment.name}
+          isSelectedCalc={store.selectedCalc === store.forms.monthPayment.name}
+          calculatable={true}
+          handleChange={handleMonthPayment}
+          value={store.forms.monthPayment.value}
+          step={10}
+          minVal={1}
+          maxVal={1000000}
+          handleSelectedCalc={handleSelectedCalc}
+        />
       </div>
-      <div className={styles.info}>
-        <label>Loan amount <strong>{currencyFormatedValue(houseCost() - initialPayment())}</strong></label>
-        <label>total paid loan + interest <strong>{currencyFormatedValue(totalPaid())}</strong></label>
-        <label>overpayment <strong>{currencyFormatedValue(totalPercent())}</strong></label>
-      </div>
-      <div className={styles.paymentSchedule}>
-        <div style={{ "text-align": "center" }}>
-          Payment schedule
-        </div>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <tbody>
-              <tr>
-                <th>
-                  Moth
-                </th>
-                <th>
-                  Payment
-                </th>
-                <th>
-                  Credit body
-                </th>
-                <th>
-                  Percent
-                </th>
-                <th>
-                  Left
-                </th>
-              </tr>
-              {
-                paymentTable().map(
-                  (r, i) =>
-                    <tr>
-                      <td>{r.month} <br/> (year {(Math.round(i / 12) < 1) ? 1 : Math.round(i / 12)})</td>
-                      <td>{currencyFormatedValue(monthPayment())}</td>
-                      <td>{currencyFormatedValue(r.g_c)}</td>
-                      <td>{currencyFormatedValue(r.percent)}</td>
-                      <td>{currencyFormatedValue(r.left)}</td>
-                    </tr>
-                )
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <Info
+        totalCredit={store.totalCredit}
+        monthPayment={store.forms.monthPayment.value}
+        term={store.forms.creditTerm.value}
+      />
+      <PaymentSchedule
+        monthPayment={store.forms.monthPayment.value}
+        totalCredit={store.totalCredit}
+        monthRate={store.monthRate}
+        creditTerm={store.forms.creditTerm.value}
+      />
     </>
   )
 }

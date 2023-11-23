@@ -1,0 +1,21 @@
+.info {
+    display: flex;
+    background: #ebeae2;
+    max-width: 40vh;
+    height: 65pt;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10pt;
+    border-radius: 20px;
+    margin-bottom: 20pt;
+    overflow: hidden;
+}
+
+@media only screen and (max-width: 680px) {
+    .info {
+        max-width: 100%;
+    }
+}
