@@ -13,17 +13,25 @@ const PaymentSchedule = (props) => {
     const rows = () => {
         var left = props.totalCredit
         const table = []
+        const currentPeriod = new Date()
+        currentPeriod.setMonth(currentPeriod.getMonth() - 1)
         for (let i = 1; i < props.creditTerm * 12 + 1; i++) {
             const percent = left * props.monthRate
             const creditBodyPayment = props.monthPayment - percent
             left -= creditBodyPayment
+
+            const featurePeriod = new Date(currentPeriod.setMonth(currentPeriod.getMonth() + 1))
+            const year = featurePeriod.getFullYear()
+            const month = (featurePeriod.getMonth() + 1) < 10 ? `0${featurePeriod.getMonth() + 1}` : featurePeriod.getMonth() + 1
+
             table.push(
-                <tr>
-                    <td>{i} <br /> (year {(Math.round(i / 12) < 1) ? 1 : Math.round(i / 12)})</td>
-                    <td>{currencyFormatedValue(props.monthPayment)}</td>
+                <tr id={i}>
+                    {/* <td>{i} <br /> (year {(Math.round(i / 12) < 1) ? 1 : Math.round(i / 12)})</td> */}
+                    <td>{`${year}-${month}`}</td>
+                    <td>{currencyFormatedValue((left > 0) ? props.monthPayment : props.monthPayment + left)}</td>
                     <td>{currencyFormatedValue(creditBodyPayment)}</td>
                     <td>{currencyFormatedValue(percent)}</td>
-                    <td>{currencyFormatedValue(left)}</td>
+                    <td>{currencyFormatedValue((left > 0) ? left : 0)}</td>
                 </tr>
             )
         }
@@ -43,7 +51,7 @@ const PaymentSchedule = (props) => {
                         <tbody>
                             <tr>
                                 <th>
-                                    Month
+                                    Period
                                 </th>
                                 <th>
                                     Payment

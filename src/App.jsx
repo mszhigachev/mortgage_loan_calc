@@ -15,26 +15,36 @@ function App() {
         initialPayment: {
           value: 200000,
           name: "Initial payment",
+          minVal: 0,
+          maxVal: Infinity
 
         },
         houseCost: {
           value: 1000000,
           name: "House cost",
+          minVal: 100,
+          maxVal: 100000000
 
         },
         creditTerm: {
           value: 20,
           name: "Credit term",
+          minVal: 1,
+          maxVal: 35
 
         },
         rate: {
           value: 5.5,
           name: "Credit rate",
+          minVal: 0.1,
+          maxVal: 99
 
         },
         monthPayment: {
           value: 5503.1,
           name: "Month payment",
+          minVal: 0,
+          maxVal: Infinity
 
         }
       },
@@ -50,12 +60,18 @@ function App() {
     }
   )
 
+
+
+  setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
+
+
+
   const calcMothPayment = () => {
     return Math.round(store.totalCredit * store.monthRate * store.totalRate / (store.totalRate - 1) * 100) / 100
   }
 
   const calcHouseCost = () => {
-    return Math.round(store.forms.initialPayment.value + store.forms.monthPayment.value * (store.totalRate) / (store.monthRate * store.totalRate))
+    return Math.round(store.forms.initialPayment.value + store.forms.monthPayment.value * (store.totalRate - 1) / (store.monthRate * store.totalRate))
   }
 
   const calcInitialPayment = () => {
@@ -82,29 +98,42 @@ function App() {
     return isNaN(floatValue) ? 0 : floatValue
   }
 
+  const makeBetween = (value, form) => {
+    console.log(value, form)
+    if (value < form.minVal) {
+      return form.minVal
+    }
+
+    if (value > form.maxVal) {
+      return form.maxVal
+    }
+
+    return value
+  }
 
   const handleInitialPayment = (v) => {
-    setStore('forms', 'initialPayment', 'value', toFloat(v))
+    setStore('forms', 'initialPayment', 'value', makeBetween(toFloat(v), store.forms.initialPayment))
     calc()
   }
 
   const handleHouseCost = (v) => {
-    setStore('forms', 'houseCost', 'value', toFloat(v))
+    setStore('forms', 'houseCost', 'value', makeBetween(toFloat(v), store.forms.houseCost))
+    setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
     calc()
   }
 
   const handleMonthPayment = (v) => {
-    setStore('forms', 'monthPayment', 'value', toFloat(v))
+    setStore('forms', 'monthPayment', 'value', makeBetween(toFloat(v), store.forms.monthPayment))
     calc()
   }
 
   const handleCreditRate = (v) => {
-    setStore('forms', 'rate', 'value', toFloat(v))
+    setStore('forms', 'rate', 'value', makeBetween(toFloat(v), store.forms.rate))
     calc()
   }
 
   const handleCreditTerm = (v) => {
-    setStore('forms', 'creditTerm', 'value', toFloat(v))
+    setStore('forms', 'creditTerm', 'value', makeBetween(toFloat(v), store.forms.creditTerm))
     calc()
   }
 
@@ -114,7 +143,7 @@ function App() {
 
   return (
     <>
-      <div>test</div>
+      <div style={{ "text-align": "center" }}>An experiment! Not for commercial use! Not recommended for use as the only source of calculations for credit decisions</div>
       <div className={styles.formsBlock}>
         <Form
           name={store.forms.initialPayment.name}
@@ -123,7 +152,7 @@ function App() {
           handleChange={handleInitialPayment}
           value={store.forms.initialPayment.value}
           step={1}
-          minVal={0}
+          minVal={store.forms.initialPayment.minVal}
           maxVal={store.forms.houseCost.value}
           handleSelectedCalc={handleSelectedCalc}
         />
@@ -135,7 +164,7 @@ function App() {
           value={store.forms.houseCost.value}
           step={1}
           minVal={store.forms.initialPayment.value}
-          maxVal={100000000}
+          maxVal={store.forms.houseCost.maxVal}
           handleSelectedCalc={handleSelectedCalc}
         />
         <Form
@@ -145,8 +174,8 @@ function App() {
           handleChange={handleCreditRate}
           value={store.forms.rate.value}
           step={0.1}
-          minVal={0.1}
-          maxVal={30}
+          minVal={store.forms.rate.minVal}
+          maxVal={store.forms.rate.maxVal}
           handleSelectedCalc={handleSelectedCalc}
         />
         <Form
@@ -156,8 +185,8 @@ function App() {
           handleChange={handleCreditTerm}
           value={store.forms.creditTerm.value}
           step={1}
-          minVal={1}
-          maxVal={35}
+          minVal={store.forms.creditTerm.minVal}
+          maxVal={store.forms.creditTerm.maxVal}
           handleSelectedCalc={handleSelectedCalc}
         />
         <Form
@@ -167,8 +196,8 @@ function App() {
           handleChange={handleMonthPayment}
           value={store.forms.monthPayment.value}
           step={10}
-          minVal={1}
-          maxVal={1000000}
+          minVal={store.forms.monthPayment.minVal}
+          maxVal={store.forms.monthPayment.maxVal}
           handleSelectedCalc={handleSelectedCalc}
         />
       </div>

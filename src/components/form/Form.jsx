@@ -1,10 +1,6 @@
 import styles from './form.module.css'
 
 const currencyFormatedValue = (v) => {
-    console.log('format', v.toLocaleString("ru-RU", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }))
     return v.toLocaleString("ru-RU", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
