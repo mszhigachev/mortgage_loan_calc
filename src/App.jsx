@@ -9,6 +9,7 @@ function App() {
 
   const [store, setStore] = createStore(
     {
+      totalPercent: 0,
       selectedCalc:
         "Month payment",
       forms: {
@@ -22,7 +23,7 @@ function App() {
         houseCost: {
           value: 1000000,
           name: "House cost",
-          minVal: 100,
+          minVal: 1,
           maxVal: 100000000
 
         },
@@ -44,7 +45,7 @@ function App() {
           value: 5503.1,
           name: "Month payment",
           minVal: 0,
-          maxVal: Infinity
+          maxVal: 100000
 
         }
       },
@@ -56,6 +57,12 @@ function App() {
       },
       get totalCredit() {
         return this.forms.houseCost.value - this.forms.initialPayment.value
+      },
+      get dayRate() {
+        const oneDay = 24 * 60 * 60 * 1000
+        const startDate = new Date()
+        const endDate = new Date(startDate.getFullYear() + this.creditTerm, startDate.getMonth(), startDate.getDate())
+        return Math.round(Math.abs((startDate - endDate) / oneDay))
       }
     }
   )
@@ -83,12 +90,14 @@ function App() {
     switch (store.selectedCalc) {
       case store.forms.monthPayment.name:
         setStore('forms', 'monthPayment', 'value', calcMothPayment())
+        setStore('forms', 'monthPayment', 'maxVal', store.forms.monthPayment.value * 5)
         break;
       case store.forms.initialPayment.name:
         setStore('forms', 'initialPayment', 'value', calcInitialPayment())
         break;
       case store.forms.houseCost.name:
         setStore('forms', 'houseCost', 'value', calcHouseCost())
+        setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
     }
   }
 
@@ -99,7 +108,6 @@ function App() {
   }
 
   const makeBetween = (value, form) => {
-    console.log(value, form)
     if (value < form.minVal) {
       return form.minVal
     }
@@ -139,6 +147,10 @@ function App() {
 
   const handleSelectedCalc = (v) => {
     setStore('selectedCalc', v)
+  }
+
+  const handleTotalPercent = (v) => {
+    setStore('totalPercent',v)
   }
 
   return (
@@ -203,7 +215,7 @@ function App() {
       </div>
       <Info
         totalCredit={store.totalCredit}
-        monthPayment={store.forms.monthPayment.value}
+        totalPercent={store.totalPercent}
         term={store.forms.creditTerm.value}
       />
       <PaymentSchedule
@@ -211,6 +223,9 @@ function App() {
         totalCredit={store.totalCredit}
         monthRate={store.monthRate}
         creditTerm={store.forms.creditTerm.value}
+        rate={store.forms.rate.value}
+        dayRate={store.dayRate}
+        handleTotalPercent={handleTotalPercent}
       />
     </>
   )

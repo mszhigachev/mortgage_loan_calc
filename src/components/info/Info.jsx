@@ -1,5 +1,4 @@
 import styles from './info.module.css'
-import { createEffect } from 'solid-js'
 
 const Info = (props) => {
 
@@ -10,8 +9,8 @@ const Info = (props) => {
     })
   }
 
-  const totalPayed = () => props.monthPayment * props.term * 12
-  const overpayment = () => props.monthPayment * props.term * 12 - props.totalCredit
+  const totalPayed = () => props.totalCredit + props.totalPercent
+  const overpayment = () => props.totalPercent
 
   const overpaymentPercent = () => Math.round(100 * overpayment() / props.totalCredit * 100) / 100
   return (
