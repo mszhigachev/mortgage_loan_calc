@@ -17,7 +17,7 @@ function App() {
           value: 200000,
           name: "Initial payment",
           minVal: 0,
-          maxVal: Infinity
+          maxVal: 100000000
 
         },
         houseCost: {
@@ -45,7 +45,7 @@ function App() {
           value: 5503.1,
           name: "Month payment",
           minVal: 0,
-          maxVal: 100000
+          maxVal: 10000000
 
         }
       },
@@ -69,7 +69,6 @@ function App() {
 
 
 
-  setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
 
 
 
@@ -90,14 +89,12 @@ function App() {
     switch (store.selectedCalc) {
       case store.forms.monthPayment.name:
         setStore('forms', 'monthPayment', 'value', calcMothPayment())
-        setStore('forms', 'monthPayment', 'maxVal', store.forms.monthPayment.value * 5)
         break;
       case store.forms.initialPayment.name:
         setStore('forms', 'initialPayment', 'value', calcInitialPayment())
         break;
       case store.forms.houseCost.name:
         setStore('forms', 'houseCost', 'value', calcHouseCost())
-        setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
     }
   }
 
@@ -126,7 +123,7 @@ function App() {
 
   const handleHouseCost = (v) => {
     setStore('forms', 'houseCost', 'value', makeBetween(toFloat(v), store.forms.houseCost))
-    setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
+    // setStore('forms', 'initialPayment', 'maxVal', store.forms.houseCost.value)
     calc()
   }
 
@@ -163,7 +160,7 @@ function App() {
           calculatable={true}
           handleChange={handleInitialPayment}
           value={store.forms.initialPayment.value}
-          step={1}
+          step={10000}
           minVal={store.forms.initialPayment.minVal}
           maxVal={store.forms.houseCost.value}
           handleSelectedCalc={handleSelectedCalc}
@@ -174,7 +171,7 @@ function App() {
           calculatable={true}
           handleChange={handleHouseCost}
           value={store.forms.houseCost.value}
-          step={1}
+          step={10000}
           minVal={store.forms.initialPayment.value}
           maxVal={store.forms.houseCost.maxVal}
           handleSelectedCalc={handleSelectedCalc}
@@ -207,7 +204,7 @@ function App() {
           calculatable={true}
           handleChange={handleMonthPayment}
           value={store.forms.monthPayment.value}
-          step={10}
+          step={1000}
           minVal={store.forms.monthPayment.minVal}
           maxVal={store.forms.monthPayment.maxVal}
           handleSelectedCalc={handleSelectedCalc}
