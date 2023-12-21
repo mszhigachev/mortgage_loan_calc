@@ -4,6 +4,8 @@ import styles from './app.module.css'
 import Form from './components/form/Form'
 import Info from './components/info/Info'
 import PaymentSchedule from './components/paymentSchedule/paymentSchedule'
+import EarlyPayment from './components/earlyPayment/earlyPayment'
+
 
 function App() {
 
@@ -12,6 +14,12 @@ function App() {
       totalPercent: 0,
       selectedCalc:
         "Month payment",
+      isEarlyPaymentEnabled: false,
+      earlyPaymentTotalPercent: 0,
+      isReducePayment: false,
+      isReduceTerm: true,
+      earlyTotalTerm: 0,
+
       forms: {
         initialPayment: {
           value: 200000,
@@ -47,6 +55,12 @@ function App() {
           minVal: 0,
           maxVal: 10000000
 
+        },
+        earlyPayment: {
+          value: 20000,
+          name: "Early payment",
+          minVal: 0,
+          maxVal: 10000000,
         }
       },
       get monthRate() {
@@ -68,9 +82,38 @@ function App() {
   )
 
 
+  const saveStore = () => {
+    const storeToSave = { forms: store.forms }
+    storeToSave.selectedCalc = store.selectedCalc
+    storeToSave.isEarlyPaymentEnabled = store.isEarlyPaymentEnabled
+    storeToSave.isReducePayment = store.isReducePayment
+    storeToSave.isReduceTerm = store.isReduceTerm
+    localStorage.setItem("mortgageCalculatorStore", JSON.stringify(storeToSave));
+  }
 
+  const loadStore = () => {
+    const storedData = localStorage.getItem("mortgageCalculatorStore");
 
+    if (storedData) {
+      const storeCopy = store
+      try {
+        const data = JSON.parse(storedData)
+        setStore('forms', data.forms)
+        setStore('selectedCalc', data.selectedCalc)
+        setStore('isEarlyPaymentEnabled', data.isEarlyPaymentEnabled)
+        setStore('isReducePayment', data.isReducePayment)
+        setStore('isReduceTerm', data.isReduceTerm)
+      }
 
+      catch (error) {
+        setStore(storeCopy)
+        console.error(error)
+      }
+    }
+
+  }
+
+  loadStore()
 
   const calcMothPayment = () => {
     return Math.round(store.totalCredit * store.monthRate * store.totalRate / (store.totalRate - 1) * 100) / 100
@@ -96,10 +139,11 @@ function App() {
       case store.forms.houseCost.name:
         setStore('forms', 'houseCost', 'value', calcHouseCost())
     }
+    saveStore()
   }
 
   const toFloat = (v) => {
-    const sanitizedValue = v.replace(/[^\d.,]/g, "")
+    const sanitizedValue = v.replace(/[^\d.,]/g, "").replace(',', '.')
     const floatValue = parseFloat(sanitizedValue)
     return isNaN(floatValue) ? 0 : floatValue
   }
@@ -147,7 +191,41 @@ function App() {
   }
 
   const handleTotalPercent = (v) => {
-    setStore('totalPercent',v)
+    setStore('totalPercent', v)
+  }
+
+  const handleEarlyPayment = (v) => {
+    var payment = toFloat(v)
+    if (payment >= store.totalCredit) {
+      payment = store.totalCredit
+    }
+    setStore('forms', 'earlyPayment', 'value', makeBetween(payment, store.forms.earlyPayment))
+  }
+
+  const handleEarlyPaymentEnabled = () => {
+    setStore('isEarlyPaymentEnabled', !store.isEarlyPaymentEnabled)
+    calc()
+  }
+
+  const handleReducePayment = () => {
+    setStore('isReducePayment', true)
+    setStore('isReduceTerm', false)
+    saveStore()
+  }
+  const handleReduceTerm = () => {
+    setStore('isReducePayment', false)
+    setStore('isReduceTerm', true)
+    saveStore()
+  }
+
+  const handleEarlyPaymentPercent = (v) => {
+    setStore('earlyPaymentTotalPercent', v)
+    saveStore()
+  }
+
+  const handleEarlyTotalTerm = (v) => {
+    setStore('earlyTotalTerm', v)
+    saveStore()
   }
 
   return (
@@ -210,20 +288,48 @@ function App() {
           handleSelectedCalc={handleSelectedCalc}
         />
       </div>
+      <div className={styles.formsBlock}>
+        <EarlyPayment
+          value={store.forms.earlyPayment.value}
+          handleChange={handleEarlyPayment}
+          minVal={store.forms.earlyPayment.minVal}
+          maxVal={store.forms.earlyPayment.maxVal}
+          name={store.forms.earlyPayment.name}
+          handleEarlyPaymentEnabled={handleEarlyPaymentEnabled}
+          isEnabled={store.isEarlyPaymentEnabled}
+          handleReducePayment={handleReducePayment}
+          isReducePayment={store.isReducePayment}
+          handleReduceTerm={handleReduceTerm}
+          isReduceTerm={store.isReduceTerm}
+        />
+      </div>
       <Info
         totalCredit={store.totalCredit}
         totalPercent={store.totalPercent}
         term={store.forms.creditTerm.value}
+        earlyPaymentTotalPercent={store.earlyPaymentTotalPercent}
+        isEarlyPaymentEnabled={store.isEarlyPaymentEnabled}
+        earlyTotalTerm={store.earlyTotalTerm}
       />
-      <PaymentSchedule
-        monthPayment={store.forms.monthPayment.value}
-        totalCredit={store.totalCredit}
-        monthRate={store.monthRate}
-        creditTerm={store.forms.creditTerm.value}
-        rate={store.forms.rate.value}
-        dayRate={store.dayRate}
-        handleTotalPercent={handleTotalPercent}
-      />
+
+      <div>
+        <PaymentSchedule
+          monthPayment={store.forms.monthPayment.value}
+          totalCredit={store.totalCredit}
+          monthRate={store.monthRate}
+          creditTerm={store.forms.creditTerm.value}
+          rate={store.forms.rate.value}
+          dayRate={store.dayRate}
+          handleTotalPercent={handleTotalPercent}
+          isEarlyPaymentEnabled={store.isEarlyPaymentEnabled}
+          earlyPaymentValue={store.forms.earlyPayment.value}
+          isReduceTerm={store.isReduceTerm}
+          handleEarlyPaymentPercent={handleEarlyPaymentPercent}
+          handleEarlyTotalTerm={handleEarlyTotalTerm}
+        />
+
+      </div>
+
     </>
   )
 }

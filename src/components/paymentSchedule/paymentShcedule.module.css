@@ -50,6 +50,40 @@
 
 }
 
+.earlyTotalPaymentText {
+    color: rgb(222 143 41);
+    text-shadow: rgba(0, 0, 0, 0.43) 0px 0px 1px;
+
+}
+
+.earlyPaymentText {
+    color: rgb(71, 177, 99);
+    text-shadow: rgba(0, 0, 0, 0.43) 0px 0px 1px;
+    font-size: 10px;
+}
+.earlyReducedPayement{
+    color: rgb(71, 177, 99);
+    text-shadow: rgba(0, 0, 0, 0.43) 0px 0px 1px;
+    font-size: 13px;
+}
+
+.scheduleMonthPayment{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: center;
+}
+
+.earplyPaymentWrapper{
+    display: flex;
+    flex-direction: column;
+    align-content: flex-end;
+    align-items: flex-end;
+    justify-content: center;
+    margin-left: 2.5px;
+}
 @media only screen and (max-width: 680px) {
     .table td {
         font-size: 10px;
@@ -57,5 +91,11 @@
 
     .table {
         width: 100%;
+    }
+    .earlyPaymentText{
+        font-size: 7px;
+    }
+    .earlyReducedPayement{
+        font-size: 7px;
     }
 }
