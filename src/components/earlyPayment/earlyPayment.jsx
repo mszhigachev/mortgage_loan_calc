@@ -1,4 +1,4 @@
-import styles from './earluPayment.module.css'
+import styles from './earlyPayment.module.css'
 
 const currencyFormatedValue = (v) => {
     return v.toLocaleString("ru-RU", {
