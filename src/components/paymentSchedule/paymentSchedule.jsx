@@ -141,7 +141,7 @@ const PaymentSchedule = (props) => {
             const earlyPercentBeforePayment = earlyLeft * calculateRateBeforePayment(currentPaymentDate, props.rate)
             
             var t_earlyPaymentValue = earlyPaymentValue
-            if (props.isOveralReducePayment){
+            if (props.isOveralReducePayment && !props.isReduceTerm){
                 t_earlyPaymentValue = earlyPaymentValue + props.monthPayment - calculateNewEarlyMonthPayment(props.rate, props.creditTerm * 12 - earlyTotalMonth, earlyLeft)
             }
 
