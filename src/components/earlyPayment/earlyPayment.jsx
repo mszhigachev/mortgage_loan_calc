@@ -21,8 +21,11 @@ const Radio = (props) => {
     return (
         <>
             <div onClick={() => props.handleChange()} disabled={props.isDisabled}>
-                <input name = 'earlyPayment' type="radio" onChange={() => props.handleChange()} checked={props.isChecked} disabled={props.isDisabled}></input>
-                <label>{props.label}</label>
+                <label>
+                    <input name='earlyPayment' type="radio" onChange={() => props.handleChange()} checked={props.isChecked} disabled={props.isDisabled}></input>
+                    <label>{props.label}</label>
+                </label>
+                {props.children}
             </div>
         </>
     )
@@ -32,7 +35,7 @@ const Text = (props) => {
     return (
         <>
             <div>
-                <input className={styles.inputText}  type="text" value={currencyFormatedValue(props.value)} onInput={(e) => { props.handleChange(e.target.value) }} disabled={props.isDisabled}></input>
+                <input className={styles.inputText} type="text" value={currencyFormatedValue(props.value)} onInput={(e) => { props.handleChange(e.target.value) }} disabled={props.isDisabled}></input>
             </div>
         </>
     )
@@ -64,16 +67,21 @@ const EarlyPayment = (props) => {
                     label={'reduce payment'}
                     // isDisabled={true}
                     isDisabled={!props.isEnabled}
-                    handleChange = {props.handleReducePayment}
+                    handleChange={props.handleReducePayment}
                     // isChecked = {false}
-                    isChecked = {props.isReducePayment}
-                />
-
+                    isChecked={props.isReducePayment}
+                >
+                    <label>
+                        <input className={styles.overalLabel} type='checkbox' disabled={!props.isEnabled || !props.isReducePayment} checked={props.isOveralReducePayment} onChange={props.handleOveralReducePayment}>
+                        </input>
+                        <span>Overall</span>
+                    </label>
+                </Radio>
                 <Radio
                     label={'reduce term'}
                     isDisabled={!props.isEnabled}
-                    handleChange = {props.handleReduceTerm}
-                    isChecked = {props.isReduceTerm}
+                    handleChange={props.handleReduceTerm}
+                    isChecked={props.isReduceTerm}
                 />
             </label>
 

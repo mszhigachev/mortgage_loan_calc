@@ -19,6 +19,7 @@ function App() {
       isReducePayment: false,
       isReduceTerm: true,
       earlyTotalTerm: 0,
+      isOveralReducePayment: false,
 
       forms: {
         initialPayment: {
@@ -88,6 +89,7 @@ function App() {
     storeToSave.isEarlyPaymentEnabled = store.isEarlyPaymentEnabled
     storeToSave.isReducePayment = store.isReducePayment
     storeToSave.isReduceTerm = store.isReduceTerm
+    storeToSave.isOveralReducePayment = store.isOveralReducePayment
     localStorage.setItem("mortgageCalculatorStore", JSON.stringify(storeToSave));
   }
 
@@ -103,6 +105,7 @@ function App() {
         setStore('isEarlyPaymentEnabled', data.isEarlyPaymentEnabled)
         setStore('isReducePayment', data.isReducePayment)
         setStore('isReduceTerm', data.isReduceTerm)
+        setStore('isOveralReducePayment', data.isOveralReducePayment)
       }
 
       catch (error) {
@@ -228,6 +231,11 @@ function App() {
     saveStore()
   }
 
+  const handleOveralReducePayment = () => {
+    setStore('isOveralReducePayment', !store.isOveralReducePayment)
+    saveStore()
+  }
+
   return (
     <>
       <div style={{ "text-align": "center" }}>An experiment! Not for commercial use! Not recommended for use as the only source of calculations for credit decisions</div>
@@ -301,6 +309,8 @@ function App() {
           isReducePayment={store.isReducePayment}
           handleReduceTerm={handleReduceTerm}
           isReduceTerm={store.isReduceTerm}
+          handleOveralReducePayment={handleOveralReducePayment}
+          isOveralReducePayment={store.isOveralReducePayment}
         />
       </div>
       <Info
@@ -326,6 +336,7 @@ function App() {
           isReduceTerm={store.isReduceTerm}
           handleEarlyPaymentPercent={handleEarlyPaymentPercent}
           handleEarlyTotalTerm={handleEarlyTotalTerm}
+          isOveralReducePayment={store.isOveralReducePayment}
         />
 
       </div>
