@@ -1,3 +1,4 @@
+import { log10 } from 'chart.js/helpers'
 import styles from './paymentShcedule.module.css'
 
 class CustomDate extends Date {
@@ -79,7 +80,8 @@ const PaymentSchedule = (props) => {
     const calculateNewEarlyMonthPayment = (rate, term, creditLeft) => {
         const monthRate = rate / 12 / 100
         const totalRate = (1 + monthRate) ** term
-        var mp = Math.round(creditLeft * monthRate * totalRate / (totalRate - 1) * 100) / 100
+        // var mp = Math.round(creditLeft * monthRate * totalRate / (totalRate - 1) * 100) / 100
+        const mp = creditLeft * monthRate * totalRate / (totalRate - 1)
         return mp
     }
 
@@ -102,9 +104,14 @@ const PaymentSchedule = (props) => {
         var earlyPaymentValue = props.earlyPaymentValue
         var earlyMonthPayment = props.monthPayment + earlyPaymentValue
         var complete = false
-        var earlyTotalMonth = 0
+        var earlyTotalMonths = 0
         var tmp_month_payment = props.monthPayment
         var showLastRow = false
+
+        // Charts
+        const chartData = {}
+        chartData["months"] = []
+        chartData["payments"] = []
         for (let i = 1; i < props.creditTerm * 12 + 1; i++) {
             const _currentPeriod = new CustomDate(prevPeriod)
             _currentPeriod.setMonth(_currentPeriod.getMonth() + 1)
@@ -115,41 +122,46 @@ const PaymentSchedule = (props) => {
             const percentAfterPrevPayment = left * calculateRateAfterPayment(prevPaymentDate, props.rate)
             const percentBeforePayment = left * calculateRateBeforePayment(currentPaymentDate, props.rate)
 
-            const totalMonthPercent = percentBeforePayment + percentAfterPrevPayment
+            var totalMonthPercent = percentBeforePayment + percentAfterPrevPayment
+            
             totalPercent += totalMonthPercent
             var creditBodyPayment = props.monthPayment - totalMonthPercent
             if (creditBodyPayment < 0) {
+                totalMonthPercent += creditBodyPayment
+
                 toSub += creditBodyPayment
                 creditBodyPayment = 0
             }
             else if (creditBodyPayment + toSub < 0) {
+                
                 toSub += creditBodyPayment
+                
                 creditBodyPayment = 0
             }
             else {
                 creditBodyPayment += toSub
+                totalMonthPercent += Math.abs(toSub)
                 toSub = 0
+                left -= creditBodyPayment
             }
-
-            left -= creditBodyPayment
-
-
             // Early payment block
 
 
             const earlyPercentAfterPrevPayment = earlyLeft * calculateRateAfterPayment(prevPaymentDate, props.rate)
             const earlyPercentBeforePayment = earlyLeft * calculateRateBeforePayment(currentPaymentDate, props.rate)
-            
+
             var t_earlyPaymentValue = earlyPaymentValue
-            if (props.isOveralReducePayment && !props.isReduceTerm){
-                t_earlyPaymentValue = earlyPaymentValue + props.monthPayment - calculateNewEarlyMonthPayment(props.rate, props.creditTerm * 12 - earlyTotalMonth, earlyLeft)
+            if (props.isOveralReducePayment && !props.isReduceTerm) {
+                t_earlyPaymentValue = earlyPaymentValue + props.monthPayment - calculateNewEarlyMonthPayment(props.rate, props.creditTerm * 12 - earlyTotalMonths, earlyLeft)
             }
 
             var earlyTotalMonthPercent = earlyPercentBeforePayment + earlyPercentAfterPrevPayment
-            earlyMonthPayment = props.isReduceTerm ? earlyMonthPayment : calculateNewEarlyMonthPayment(props.rate, props.creditTerm * 12 - earlyTotalMonth, earlyLeft)
-            
-            var earlyCreditBodyPayment = props.isReduceTerm ? earlyMonthPayment - earlyTotalMonthPercent : earlyMonthPayment + t_earlyPaymentValue - earlyTotalMonthPercent
-            if (creditBodyPayment < 0) {
+            earlyMonthPayment = props.isReduceTerm ? props.monthPayment : calculateNewEarlyMonthPayment(props.rate, props.creditTerm * 12 - earlyTotalMonths, earlyLeft)
+
+            var earlyCreditBodyPayment = earlyMonthPayment - earlyTotalMonthPercent
+
+            if (earlyCreditBodyPayment < 0) {
+                earlyTotalMonthPercent += earlyCreditBodyPayment
                 earlyToSub += earlyCreditBodyPayment
                 earlyCreditBodyPayment = 0
             }
@@ -159,17 +171,23 @@ const PaymentSchedule = (props) => {
             }
             else {
                 earlyCreditBodyPayment += earlyToSub
+                earlyTotalMonthPercent += Math.abs(earlyToSub)
                 earlyToSub = 0
-            }
+                earlyLeft -= earlyCreditBodyPayment
 
-            earlyLeft -= earlyCreditBodyPayment
+            }
+            earlyLeft -= t_earlyPaymentValue
+
             //earlyMonthPayment - earlyPaymentValue
 
             var ePaymentValuePrint = props.isReduceTerm ? <EPayment v={t_earlyPaymentValue} /> : <EPaymentReducePayment reducedPayment={earlyMonthPayment} earlyPaymentValue={t_earlyPaymentValue} />
-            var earlyMonthPaymentPrint = props.isReduceTerm ? <TEPayment v={earlyMonthPayment} /> : <TEPayment v={earlyMonthPayment + t_earlyPaymentValue} />
-            var earlyCreditBodyPaymentPrint = props.isReduceTerm ? <TEPayment v={earlyCreditBodyPayment - t_earlyPaymentValue} /> : <TEPayment v={earlyCreditBodyPayment} />
+            var earlyMonthPaymentPrint = props.isReduceTerm ? <TEPayment v={earlyMonthPayment + t_earlyPaymentValue} /> : <TEPayment v={earlyMonthPayment + t_earlyPaymentValue} />
+            var earlyCreditBodyPaymentPrint = <TEPayment v={earlyCreditBodyPayment + t_earlyPaymentValue} />
             var earlyTotalMonthPercentPrint = <TEPayment v={earlyTotalMonthPercent} />
             var earlyLeftPrint = <TEPayment v={earlyLeft} />
+
+            var chartEarlyPaymentBody = props.isReduceTerm ? earlyCreditBodyPayment + t_earlyPaymentValue : earlyCreditBodyPayment + t_earlyPaymentValue
+            var chartEarlyPaymentPercent = earlyTotalMonthPercent
 
             if (complete || !props.isEarlyPaymentEnabled) {
                 ePaymentValuePrint = null
@@ -178,20 +196,24 @@ const PaymentSchedule = (props) => {
                 earlyTotalMonthPercentPrint = null
                 earlyLeftPrint = null
                 showLastRow = false
+                chartEarlyPaymentBody = 0
+                chartEarlyPaymentPercent = 0
             }
             else if (earlyLeft < 0) {
                 complete = true
                 showLastRow = true
                 ePaymentValuePrint = props.isReduceTerm ? <EPayment v={t_earlyPaymentValue} /> : <EPaymentReducePayment reducedPayment={earlyMonthPayment} earlyPaymentValue={earlyLeft + t_earlyPaymentValue} />
-                earlyCreditBodyPaymentPrint = <TEPayment v={earlyCreditBodyPayment + earlyLeft} />
-                earlyMonthPaymentPrint = <TEPayment v={earlyMonthPayment + t_earlyPaymentValue + earlyLeft} />
+                earlyCreditBodyPaymentPrint = <TEPayment v={earlyCreditBodyPayment + t_earlyPaymentValue + earlyLeft} />
+                earlyMonthPaymentPrint = <TEPayment v={props.isReduceTerm ? earlyMonthPayment + t_earlyPaymentValue  +  earlyLeft : earlyMonthPayment + t_earlyPaymentValue + earlyLeft} />
                 earlyLeftPrint = <TEPayment v={0} />
                 earlyTotalPercent += earlyTotalMonthPercent
-                earlyTotalMonth += 1
+                earlyTotalMonths += 1
+                chartEarlyPaymentBody = earlyCreditBodyPayment + t_earlyPaymentValue + earlyLeft
+                chartEarlyPaymentPercent = earlyTotalMonthPercent
             }
             else {
                 earlyTotalPercent += earlyTotalMonthPercent
-                earlyTotalMonth += 1
+                earlyTotalMonths += 1
             }
 
 
@@ -207,7 +229,8 @@ const PaymentSchedule = (props) => {
                         <td style={showLastRow ? { "background": "#d0fff0" } : ""}>{currencyFormatedValue(0)}<br />{earlyLeftPrint}</td>
                     </tr>
                 )
-
+                chartData['months'].push(currentPaymentDate.toCustomString())
+                chartData['payments'].push([[creditBodyPayment + left, totalMonthPercent], [chartEarlyPaymentBody, chartEarlyPaymentPercent]])
                 break
             }
 
@@ -221,12 +244,18 @@ const PaymentSchedule = (props) => {
                     <td style={showLastRow ? { "background": "#d0fff0" } : ""}>{currencyFormatedValue((left < 0) ? 0 : left)}<br />{earlyLeftPrint}</td>
                 </tr>
             )
+            chartData['months'].push(currentPaymentDate.toCustomString())
+            chartData['payments'].push([[creditBodyPayment, totalMonthPercent], [chartEarlyPaymentBody, chartEarlyPaymentPercent]])
 
             prevPeriod = _currentPeriod
         }
+        if (earlyLeft > 0 && props.isEarlyPaymentEnabled) {
+
+        }
         props.handleTotalPercent(totalPercent)
         props.handleEarlyPaymentPercent(earlyTotalPercent)
-        props.handleEarlyTotalTerm(earlyTotalMonth)
+        props.handleEarlyTotalTerm(earlyTotalMonths)
+        props.handleChartData(chartData)
         return table
     }
 
